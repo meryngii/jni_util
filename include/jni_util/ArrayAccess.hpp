@@ -1,39 +1,12 @@
 
-#ifndef JNI_UTIL_HPP
-#define JNI_UTIL_HPP
+#ifndef JNI_UTIL_ARRAYACCESS_HPP
+#define JNI_UTIL_ARRAYACCESS_HPP
 
 #include <jni.h>
+#include <cassert>
 
 namespace jni_util
 {
-
-class StringAccess
-{
-public:
-    StringAccess(JNIEnv* env, jstring strj)
-        : env_(env), strj_(strj)
-    {
-        str_ = env_->GetStringUTFChars(strj_, &isCopy_);
-    }
-    StringAccess(const StringAccess&) = delete;
-    
-    ~StringAccess() {
-        if (str_ != nullptr)
-            env_->ReleaseStringUTFChars(strj_, str_);
-    }
-    
-    StringAccess& operator = (const StringAccess&) = delete;
-    
-    const char* pointer() const { return str_; }
-    
-    jboolean isCopy() { return isCopy_; }
-    
-private:
-    JNIEnv* env_;
-    jstring strj_;
-    const char* str_;
-    jboolean isCopy_;
-};
 
 template <typename Elem>
 struct ArrayFunctions;
@@ -136,6 +109,9 @@ public:
     CopiedArrayAccess(JNIEnv* env, jArray arrayj, jint mode = 0)
         : env_(env), arrayj_(arrayj)
     {
+        assert(env_ != nullptr);
+        assert(arrayj_ != nullptr);
+        
         elems_ = Helper::GetArrayElements(env_, arrayj_, &isCopy_);
     }
     CopiedArrayAccess(const CopiedArrayAccess&) = delete;
@@ -171,7 +147,11 @@ public:
     using jArray = typename Helper::jArray;
     
     RegionalArrayAccess(JNIEnv* env, jArray arrayj)
-        : env_(env), arrayj_(arrayj) { }
+        : env_(env), arrayj_(arrayj)
+    {
+        assert(env_ != nullptr);
+        assert(arrayj_ != nullptr);
+    }
     RegionalArrayAccess(const RegionalArrayAccess&) = delete;
     
     ~RegionalArrayAccess() { }
@@ -202,7 +182,11 @@ public:
     using Elem = jobject;
     
     RegionalArrayAccess(JNIEnv* env, jArray arrayj)
-        : env_(env), arrayj_(arrayj) { }
+        : env_(env), arrayj_(arrayj)
+    {
+        assert(env_ != nullptr);
+        assert(arrayj_ != nullptr);
+    }
     
     RegionalArrayAccess(const RegionalArrayAccess&) = delete;
     
